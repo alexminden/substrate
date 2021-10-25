@@ -13,11 +13,6 @@ export interface Params {
     method: string,
     params?: number[] | string[]
 }
-export interface Result {
-    jsonrpc: string,
-    result: any,
-    id: number
-}
 
 export async function apiTransaction(pair: KeyringPair[], api: ApiPromise) {
     const txHash = await api.tx.balances.transfer(pair[5].address, 1000).signAndSend(pair[0]);
