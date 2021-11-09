@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "ts-node src/index.ts"
+    "test": "ts-node test/index.ts",
+    "clean": "rimraf .dist"
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +14,8 @@
     "@polkadot/ui-keyring": "^0.86.1",
     "@polkadot/util-crypto": "^7.5.1",
     "@substrate/txwrapper-polkadot": "^1.2.18",
+    "@types/aws-lambda": "^8.10.85",
+    "aws-lambda": "^1.0.7",
     "axios": "^0.23.0",
     "ts-node": "^10.3.1"
   }

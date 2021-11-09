@@ -1,0 +1,27 @@
+{
+  "name": "aws-cdk",
+  "version": "0.1.0",
+  "bin": {
+    "aws-cdk": "bin/aws-cdk.js"
+  },
+  "scripts": {
+    "build": "ts-node ./lib/index.ts",
+    "stg": "npm run build && npx cdk deploy -c stage=stg --all",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@aws-cdk/assertions": "1.131.0",
+    "@types/node": "10.17.27",
+    "aws-cdk": "1.131.0",
+    "ts-node": "^9.0.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-apigateway": "^1.131.0",
+    "@aws-cdk/aws-iam": "^1.131.0",
+    "@aws-cdk/aws-lambda": "^1.131.0",
+    "@aws-cdk/core": "^1.131.0",
+    "@types/shelljs": "^0.8.9",
+    "shelljs": "^0.8.4"
+  }
+}

@@ -13,7 +13,7 @@ export interface Result {
 export async function httpRequest(params: Params): Promise<any> {
     try {
         const { data } = await axios.post(
-            "http://127.0.0.1:9933",
+            "http://3.113.3.63:9933",
             params,
             {
                 headers: {
