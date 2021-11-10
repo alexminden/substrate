@@ -5,7 +5,6 @@ const nodeExternals = require('webpack-node-externals');
 
 const ROOT_DIR = path.resolve(__dirname);
 const SRC_DIR = path.join(ROOT_DIR, 'src');
-// const PARAM_DIR = path.join(ROOT_DIR, 'aws-cdk', 'src');
 
 const entry = {
     ...entries('create-instance'),
@@ -28,9 +27,7 @@ module.exports = {
     module: {
         rules: [
             {
-                include: [
-                    SRC_DIR,
-                ],
+                include: [SRC_DIR,],
                 test: /\.ts$/,
                 use: {
                     loader: 'ts-loader',
@@ -45,22 +42,16 @@ module.exports = {
         alias: {
             'src': SRC_DIR,
         },
-        modules: [
-            SRC_DIR,
-            'node_modules',
-        ],
+        modules: [SRC_DIR,'node_modules',],
     },
     target: 'node',
 };
 
-function entries(dirname) {
-    const retval = {};
-
+function entries(dirname, entries = {}) {
     const dirpath = path.join(SRC_DIR, `${dirname}`);
     const targets = fs.readdirSync(dirpath, { withFileTypes: true });
     for (const dirent of targets) {
-        retval[`${dirname}/index`] = path.join(dirpath, 'index.ts');
+        entries[`${dirname}/index`] = path.join(dirpath, 'index.ts');
     }
-
-    return retval;
+    return entries;
 }
