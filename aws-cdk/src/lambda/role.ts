@@ -12,6 +12,7 @@ export class LambdaRole extends iam.Role {
                 iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaRole'),
                 iam.ManagedPolicy.fromAwsManagedPolicyName('AWSLambdaExecute'),
                 iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2FullAccess'),
+                iam.ManagedPolicy.fromAwsManagedPolicyName('SecretsManagerReadWrite'),
             ],
             roleName,
         });

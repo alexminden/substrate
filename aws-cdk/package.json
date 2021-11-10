@@ -13,8 +13,10 @@
     "@aws-cdk/assertions": "1.131.0",
     "@types/node": "10.17.27",
     "aws-cdk": "1.131.0",
+    "node-loader": "^2.0.0",
     "ts-node": "^9.0.0",
-    "typescript": "~3.9.7"
+    "typescript": "~3.9.7",
+    "webpack-cli": "^4.9.1"
   },
   "dependencies": {
     "@aws-cdk/aws-apigateway": "^1.131.0",
@@ -22,6 +24,9 @@
     "@aws-cdk/aws-lambda": "^1.131.0",
     "@aws-cdk/core": "^1.131.0",
     "@types/shelljs": "^0.8.9",
-    "shelljs": "^0.8.4"
+    "shelljs": "^0.8.4",
+    "ts-loader": "^9.2.6",
+    "webpack": "^5.63.0",
+    "webpack-node-externals": "^3.0.0"
   }
 }

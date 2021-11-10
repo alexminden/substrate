@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "webpack": "webpack",
     "test": "ts-node test/index.ts",
     "clean": "rimraf .dist"
   },
@@ -16,7 +17,16 @@
     "@substrate/txwrapper-polkadot": "^1.2.18",
     "@types/aws-lambda": "^8.10.85",
     "aws-lambda": "^1.0.7",
+    "aws-sdk": "^2.1025.0",
+    "aws-xray-sdk": "^3.3.3",
     "axios": "^0.23.0",
-    "ts-node": "^10.3.1"
+    "ts-loader": "^9.2.6",
+    "ts-node": "^10.3.1",
+    "webpack": "^5.63.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-node-externals": "^3.0.0"
+  },
+  "devDependencies": {
+    "node-loader": "^2.0.0"
   }
 }

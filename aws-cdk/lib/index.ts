@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as shell from 'shelljs';
-import { buildLayer, distLambda } from './build';
+import { buildLayer } from './build';
 
 export const directories = {
     ROOT_DIR: path.resolve(__dirname, '../..'),
@@ -11,7 +11,7 @@ export const directories = {
 function main(): void {
     shell.exec('npm --prefix .. run clean');
     shell.mkdir('-p', directories.DIST_DIR);
-    distLambda();
+    shell.exec('npm --prefix .. run webpack');
     buildLayer();
 }
 
