@@ -18,7 +18,7 @@ export async function handler(event: any, context: Context): Promise<void> {
 
         console.log('Handler Instance');
         // await ec2.createInstance(nameSecret);
-        // await sleep(2000);
+        // await sleep(5000);
         const instance = await ec2.getInstances();
         console.log('instance: ', instance);
         console.log('key: ', key);

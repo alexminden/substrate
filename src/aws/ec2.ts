@@ -50,13 +50,13 @@ export async function getInstances(): Promise<Instance[]> {
     try {
         let instances: (InstanceList | undefined)[] = [];
         const res = (await ec2.describeInstances().promise()).Reservations;
+        console.log('All instances: ', res);
         if (res) {
             instances = res
                 .map((instance: Reservation) => instance.Instances)
-                .filter((instance: any) => instance[0].PrivateIpAddress)
+                .filter((instance: any) => instance[0].PublicDnsName)
                 .map((instance: any) => instance[0])
         }
-        console.log(instances);
         return instances as Instance[];
     } catch (err) {
         console.log('getInstances error: ', err);
