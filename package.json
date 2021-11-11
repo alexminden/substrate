@@ -20,6 +20,7 @@
     "aws-sdk": "^2.1025.0",
     "aws-xray-sdk": "^3.3.3",
     "axios": "^0.23.0",
+    "node-ssh-forward": "^0.7.2",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.3.1",
     "webpack": "^5.63.0",
