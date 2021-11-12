@@ -16,6 +16,11 @@ export async function handler(event: any, context: Context): Promise<void> {
             'git clone -b latest --depth 1 https://github.com/substrate-developer-hub/substrate-node-template',
             'cd substrate-node-template && cargo build --release'
         ];
+
+        const commandRunNode = [
+            'sudo apt update && sudo apt install -y git clang curl libssl-dev llvm libudev-dev',
+            './target/release/node-template --dev --tmp --ws-external'
+        ]
         const nameSecret = 'Lambda-Test';
         const test = await sm.listKey();
         let key: string = '';
@@ -30,13 +35,16 @@ export async function handler(event: any, context: Context): Promise<void> {
         console.log('Handler Instance');
         await ec2.createInstance(nameSecret);
         await sleep(10000);
-        const instance = await ec2.getInstances();
+        // const instance = await ec2.getInstances();
 
-        console.log('Download Rust');
-        await makeCommand(key, instance[0].PublicDnsName!, commandRust);
+        // console.log('Download Rust');
+        // await makeCommand(key, instance[0].PublicDnsName!, commandRust);
 
-        console.log('Download Substrate')
-        await makeCommand(key, instance[0].PublicDnsName!, commandSubstrate);
+        // console.log('Download Substrate')
+        // await makeCommand(key, instance[0].PublicDnsName!, commandSubstrate);
+
+        // console.log('Run node')
+        // await makeCommand(key, instance[0].PublicDnsName!, commandRunNode);
     } catch (err) {
         throw new Error(`Function error: ${err}`);
     }
