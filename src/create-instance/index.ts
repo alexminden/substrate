@@ -3,7 +3,12 @@ import { ec2, sm } from '../aws';
 import { sleep } from '../utils/utils';
 import { makeCommand } from './command';
 
-export async function handler(event: any, context: Context): Promise<void> {
+type ApiReturn = {
+    statusCode: number,
+    body: string,
+};
+
+export async function handler(event: any, context: Context): Promise<ApiReturn> {
     try {
         const commandRust = [
             'sudo apt-get update',
@@ -33,8 +38,8 @@ export async function handler(event: any, context: Context): Promise<void> {
         }
 
         console.log('Handler Instance');
-        await ec2.createInstance(nameSecret);
-        await sleep(10000);
+        const instanceId = await ec2.createInstance(nameSecret);
+        // await sleep(10000);
         // const instance = await ec2.getInstances();
 
         // console.log('Download Rust');
@@ -44,7 +49,12 @@ export async function handler(event: any, context: Context): Promise<void> {
         // await makeCommand(key, instance[0].PublicDnsName!, commandSubstrate);
 
         // console.log('Run node')
-        // await makeCommand(key, instance[0].PublicDnsName!, commandRunNode);
+        // await makeCommand(key, instance[0].PublicDnsName!, commandRunNode);\
+        console.log(instanceId);
+        return {
+            statusCode: 201,
+            body: `{\n   "instanceId": ${instanceId}\n}`
+        };
     } catch (err) {
         throw new Error(`Function error: ${err}`);
     }
