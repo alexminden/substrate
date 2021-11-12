@@ -14,9 +14,14 @@ export interface Params {
     params?: number[] | string[]
 }
 
-export async function apiTransaction(pair: KeyringPair[], api: ApiPromise) {
-    const txHash = await api.tx.balances.transfer(pair[5].address, 1000).signAndSend(pair[0]);
-    console.log('Api Transaction: ', txHash);
+export async function apiTransaction(pair: KeyringPair[], api: ApiPromise, from: number, to: number) {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(api.tx.balances.transfer(pair[to].address, 10).signAndSend(pair[from], { nonce: -1 }));
+        } catch (err) {
+            reject(err);
+        }
+    })
 }
 
 export async function httpTransaction(pair: KeyringPair[]) {
@@ -66,7 +71,7 @@ export async function httpTransaction(pair: KeyringPair[]) {
 
     const signingPayload = construct.signingPayload(unsigned, { registry });
 
-    const signature = signWith(pair[0], signingPayload, {
+    const signature: any = signWith(pair[0], signingPayload, {
         metadataRpc,
         registry,
     });
