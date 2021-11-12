@@ -5,7 +5,7 @@ import { apiTransaction, httpTransaction } from './test';
 async function main() {
     const keyring = createTestKeyring();
     const pair = keyring.getPairs();
-    const wsProvider = new WsProvider('ws://127.0.0.1:9944');
+    const wsProvider = new WsProvider('ws://3.113.3.63:9944');
     const api: ApiPromise = await ApiPromise.create({ provider: wsProvider });
     const now = await api.query.timestamp.now();
     for (let i in pair) {

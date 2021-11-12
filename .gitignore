@@ -1,0 +1,8 @@
+node_modules
+.dist
+
+#Aws cdk
+aws-cdk/package-lock.json
+aws-cdk/.cdk.staging
+aws-cdk/cdk.out
+aws-cdk/node_modules
