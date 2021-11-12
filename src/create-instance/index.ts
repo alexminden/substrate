@@ -38,22 +38,35 @@ export async function handler(event: any, context: Context): Promise<ApiReturn> 
         }
 
         console.log('Handler Instance');
-        const instanceId = await ec2.createInstance(nameSecret);
+        // const instanceId = await ec2.createInstance(nameSecret);
         // await sleep(10000);
-        // const instance = await ec2.getInstances();
+        const instance = await ec2.getInstances();
+        console.log(instance);
+        // const instanceId = instance[0].InstanceId;
+        // await ec2.terminateInstance(instanceId!);
 
-        // console.log('Download Rust');
-        // await makeCommand(key, instance[0].PublicDnsName!, commandRust);
+        console.log('Download Rust');
+        await makeCommand(key, instance[0].PublicDnsName!, commandRust);
 
-        // console.log('Download Substrate')
-        // await makeCommand(key, instance[0].PublicDnsName!, commandSubstrate);
+        console.log('Download Substrate')
+        await makeCommand(key, instance[0].PublicDnsName!, commandSubstrate);
 
-        // console.log('Run node')
-        // await makeCommand(key, instance[0].PublicDnsName!, commandRunNode);\
-        console.log(instanceId);
+        console.log('Run node')
+        await makeCommand(key, instance[0].PublicDnsName!, commandRunNode);
+
+        // return {
+        //     statusCode: 201,
+        //     body: `{\n   "instanceId": ${instanceId}\n}`
+        // };
+
+        // return {
+        //     statusCode: 200,
+        //     body: `{\n   "Deleted instanceId": ${instanceId}\n}`
+        // };
+
         return {
-            statusCode: 201,
-            body: `{\n   "instanceId": ${instanceId}\n}`
+            statusCode: 200,
+            body: `Ran the command`
         };
     } catch (err) {
         throw new Error(`Function error: ${err}`);

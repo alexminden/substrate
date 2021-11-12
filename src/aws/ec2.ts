@@ -16,7 +16,7 @@ export async function createKeyPair(name: string): Promise<string> {
     }
 }
 
-export async function createInstance(key: string): Promise<void> {
+export async function createInstance(key: string): Promise<string> {
     try {
         const instanceParams = {
             BlockDeviceMappings: [
@@ -39,6 +39,23 @@ export async function createInstance(key: string): Promise<void> {
         };
 
         const res = (await ec2.runInstances(instanceParams).promise()).Instances;
+        console.log('Result: ', res);
+        return res![0].InstanceId!;
+    } catch (err) {
+        console.log('createInstance error: ', err);
+        throw err;
+    }
+}
+
+export async function terminateInstance(instanceId: string): Promise<void> {
+    try {
+        var terminateParams = {
+            InstanceIds: [
+                instanceId
+            ]
+        };
+
+        const res = await ec2.terminateInstances(terminateParams).promise();
         console.log('Result: ', res);
     } catch (err) {
         console.log('createInstance error: ', err);
