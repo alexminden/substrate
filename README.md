@@ -4,5 +4,5 @@
 
 - Deploy cdk to create the API:
 ```sh
-cargo run --release -- --dev --tmp
+cd aws-cdk && npm run stg
 ``` 
