@@ -14,18 +14,31 @@ async function main() {
         console.log(`Account ${pair[i].address} balance is ${balance}`);
     }
 
+    // const time = new Date().getTime();
+    // for (let i = 0; i < loop; i++) {
+    //     const promises = [];
+    //     for (let j = 0; j < 4; j++) {
+    //         for (let k = 4; k < 8; k++) {
+    //             promises.push(apiTransaction(pair, api, j, 4));
+    //         }
+    //     }
+    //     await Promise.all(promises);
+    // }
+    // const time2 = (new Date().getTime() - time) / 1000;
+    // console.log('Transactions: ', loop * 4, '\nTime: ', time2, '\nTPS: ', loop * 4 / time2);
+    console.log('HTTP');
     const time = new Date().getTime();
+    const promises = [];
     for (let i = 0; i < loop; i++) {
-        const promises = [];
         for (let j = 0; j < 4; j++) {
-            promises.push(apiTransaction(pair, api, j, 4));
+            for (let k = 4; k < 8; k++) {
+                promises.push(await httpTransaction(pair[j], pair[k]));
+            }
         }
-        const res = await Promise.all(promises);
-        console.log(res);
     }
+    const res = await Promise.all(promises);
     const time2 = (new Date().getTime() - time) / 1000;
-    console.log('Transactions: ', loop*4,'\nTime: ', time2,'\nTPS: ', loop*4/time2);
-    // await httpTransaction(pair);
+    console.log('Transactions: ', loop * 4, '\nTime: ', time2, '\nTPS: ', loop * 4 / time2);
 }
 
 main().then(
