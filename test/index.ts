@@ -4,38 +4,41 @@ import { apiTransaction, httpTransaction } from './test';
 import BN from 'bn.js';
 
 async function main() {
-    const loop = 200;
+    // Loop番号を変更することで、各アカウントの取引数を増減させることができます。
+    const loop = 5000;
+
     const keyring = createTestKeyring();
     const pair = keyring.getPairs();
     const wsProvider = new WsProvider('ws://127.0.0.1:9944');
     const api: ApiPromise = await ApiPromise.create({ provider: wsProvider });
     const now = await api.query.timestamp.now();
+
     let data = (await api.query.system.account(pair[4].address)).data;
     console.log(`Account ${pair[4].address} balance is ${data.free}`);
 
-    // const time = new Date().getTime();
-    // for (let i = 0; i < 4; i++) {
-    //     const promises = [];
-    //     let { nonce }: any = await api.query.system.account(pair[i].address);
-    //     nonce = new BN(nonce.toString());
-    //     for (let j = 0; j < loop; j++) {
-    //         promises.push(apiTransaction(pair, api, i, 4, nonce));
-    //         nonce = nonce.add(new BN(1));
-    //     }
-    //     await Promise.all(promises);
-    // }
-    // await calculateTPS(api, time, loop, 1);
-
-    console.log('HTTP');
     const time = new Date().getTime();
-    const promises = [];
-    for (let j = 0; j < 4; j++) {
-        for (let i = 0; i < loop; i++) {
-            promises.push(await httpTransaction(pair[j], pair[4]));
+    for (let i = 0; i < 4; i++) {
+        const promises = [];
+        let { nonce }: any = await api.query.system.account(pair[i].address);
+        nonce = new BN(nonce.toString());
+        for (let j = 0; j < loop; j++) {
+            promises.push(apiTransaction(pair, api, i, 4, nonce));
+            nonce = nonce.add(new BN(1));
         }
+        await Promise.all(promises);
     }
-    await Promise.all(promises);
     await calculateTPS(api, time, loop, 1);
+
+    // console.log('HTTP');
+    // const time = new Date().getTime();
+    // const promises = [];
+    // for (let j = 0; j < 4; j++) {
+    //     for (let i = 0; i < loop; i++) {
+    //         promises.push(await httpTransaction(pair[j], pair[4]));
+    //     }
+    // }
+    // await Promise.all(promises);
+    // await calculateTPS(api, time, loop, 1);
     data = (await api.query.system.account(pair[4].address)).data
     console.log(`Account ${pair[4].address} balance is ${data.free}`);
 
