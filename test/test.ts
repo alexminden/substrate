@@ -14,11 +14,10 @@ export interface Params {
     params?: number[] | string[]
 }
 
-export async function apiTransaction(pair: KeyringPair[], api: ApiPromise, from: number, to: number) {
+export async function apiTransaction(pair: KeyringPair[], api: ApiPromise, from: number, to: number, nonce: number) {
     return new Promise((resolve, reject) => {
         try {
-            console.log(to);
-            resolve(api.tx.balances.transfer(pair[to].address, 1000).signAndSend(pair[from], { nonce: -1 }));
+            resolve(api.tx.balances.transfer(pair[to].address, 1000).signAndSend(pair[from], { nonce }));
         } catch (err) {
             reject(err);
         }

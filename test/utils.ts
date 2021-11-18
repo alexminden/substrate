@@ -23,24 +23,24 @@ export async function httpRequest(params: Params): Promise<any> {
         )
         const res = data as Result;
         return res.result;
-    } catch(err) {
+    } catch (err) {
         console.log('Axios Error: ', err);
     }
 }
 
 export function signWith(
-	pair: KeyringPair,
-	signingPayload: string,
-	options: OptionsWithMeta
+    pair: KeyringPair,
+    signingPayload: string,
+    options: OptionsWithMeta
 ): string {
-	const { registry, metadataRpc } = options;
-	registry.setMetadata(createMetadata(registry, metadataRpc));
+    const { registry, metadataRpc } = options;
+    registry.setMetadata(createMetadata(registry, metadataRpc));
 
-	const { signature } = registry
-		.createType('ExtrinsicPayload', signingPayload, {
-			version: EXTRINSIC_VERSION,
-		})
-		.sign(pair);
+    const { signature } = registry
+        .createType('ExtrinsicPayload', signingPayload, {
+            version: EXTRINSIC_VERSION,
+        })
+        .sign(pair);
 
-	return signature;
+    return signature;
 }
