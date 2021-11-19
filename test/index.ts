@@ -1,68 +1,67 @@
 import { createTestKeyring } from '@polkadot/keyring/testing';
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import { apiTransaction, httpTransaction } from './test';
-import BN from 'bn.js';
+import { Worker } from 'worker_threads';
+import { getTxNumber } from './utils';
 
 async function main() {
     // Loop番号を変更することで、各アカウントの取引数を増減させることができます。
-    const loop = 2000;
-
-    const keyring = createTestKeyring();
-    const pair = keyring.getPairs();
-
-    const wsProvider = new WsProvider('ws://127.0.0.1:9945');
-    // const wsProvider2 = new WsProvider('ws://127.0.0.1:9946');
+    const loop = 10000;
+    const wsProvider = new WsProvider('ws://127.0.0.1:9944');
 
     const api: ApiPromise = await ApiPromise.create({ provider: wsProvider });
-    // const api2: ApiPromise = await ApiPromise.create({ provider: wsProvider2 });
 
+    const pair = createTestKeyring().getPairs();
     let data = (await api.query.system.account(pair[4].address)).data;
     console.log(`Account ${pair[4].address} balance is ${data.free}`);
 
     const promises = [];
-    const time = new Date().getTime();
-    // let apiTest;
-    for (let i = 0; i < 4; i++) {
-        // if(i % 2 == 0) apiTest = api;
-        // else apiTest = api2;
-        let { nonce }: any = await api.query.system.account(pair[i].address);
-        nonce = new BN(nonce.toString());
-        for (let j = 0; j < loop; j++) {
-            promises.push(apiTransaction(pair, api, i, 4, nonce));
-            nonce = nonce.add(new BN(1));
+    for (let index = 0; index < 4; index++) {
+        const worker = new Worker(`
+            require('tsconfig-paths/register');
+            require('ts-node/register');
+            require(require('worker_threads').workerData.runThisFileInTheWorker);`,
+            {
+                eval: true,
+                workerData: {
+                    loop: loop,
+                    index,
+                    runThisFileInTheWorker: './test/worker.ts'
+                }
+            });
+        promises.push(new Promise(r => worker.on('exit', r)));
+    }
+
+    Promise.all(promises);
+
+    let blockTimes: number[] = [];
+    let currentIndex = 0;
+    await api.rpc.chain.subscribeNewHeads((header) => {
+        let time = (new Date()).getTime();
+        console.log(`Block ${header.number} Mined. time = ${time}`);
+        blockTimes.push(time);
+        console.log(blockTimes.length)
+    });
+    setInterval(async () => {
+        for (let index = currentIndex; index < blockTimes.length - 1; index++) {
+            const beforeTime = blockTimes[index];
+            const afterTime = blockTimes[index + 1];
+            const term = (afterTime - beforeTime) / 1000;
+            const txNum = await getTxNumber(api, index + 1);
+            console.log(`[${afterTime - beforeTime} msec] Block ${index + 1} Mined. txNum = ${txNum}. TPS:`, txNum / term);
+            data = (await api.query.system.account(pair[4].address)).data;
+            console.log(`Account ${pair[4].address} balance is ${data.free}`);
+            currentIndex = index + 1;
         }
-    }
-    await Promise.all(promises);
-    await calculateTPS(api, time, loop, 1);
-
-    // console.log('HTTP');
-    // const time = new Date().getTime();
-    // const promises = [];
-    // for (let j = 0; j < 4; j++) {
-    //     for (let i = 0; i < loop; i++) {
-    //         promises.push(await httpTransaction(pair[j], pair[4]));
-    //     }
-    // }
-    // await Promise.all(promises);
-    // await calculateTPS(api, time, loop, 1);
-    data = (await api.query.system.account(pair[4].address)).data
-    console.log(`Account ${pair[4].address} balance is ${data.free}`);
-
+    }, 5000);
 }
 
-async function calculateTPS(api: ApiPromise, time: number, loop: number, accounts: number) {
-    let extrinsic = await api.rpc.author.pendingExtrinsics();
-    while (extrinsic.length > 0) {
-        extrinsic = await api.rpc.author.pendingExtrinsics();
-    }
-    const time2 = (new Date().getTime() - time) / 1000;
-    console.log('Transactions: ', loop * accounts * 4, '\nTime: ', time2, '\nTPS: ', loop * accounts * 4 / time2);
-}
 
-main().then(
-    () => process.exit(),
-    err => {
-        console.error(err);
-        process.exit(-1);
-    }
-);
+main().catch(console.error);
+
+// .then(
+//     () => process.exit(),
+//     err => {
+//         console.error(err);
+//         process.exit(-1);
+//     }
+// );

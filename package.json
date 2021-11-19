@@ -24,7 +24,7 @@
     "axios": "^0.23.0",
     "node-ssh-forward": "^0.7.2",
     "ts-loader": "^9.2.6",
-    "ts-node": "^10.3.1",
+    "ts-node": "^10.4.0",
     "tsconfig-paths": "^3.11.0",
     "webpack": "^5.63.0",
     "webpack-cli": "^4.9.1",
