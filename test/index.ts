@@ -1,50 +1,37 @@
 import { createTestKeyring } from '@polkadot/keyring/testing';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { apiTransaction, httpTransaction } from './test';
+import { Worker } from 'worker_threads';
 import BN from 'bn.js';
 
 async function main() {
     // Loop番号を変更することで、各アカウントの取引数を増減させることができます。
-    const loop = 2000;
+    const loop = 1000;
 
     const keyring = createTestKeyring();
     const pair = keyring.getPairs();
-
-    const wsProvider = new WsProvider('ws://127.0.0.1:9945');
-    // const wsProvider2 = new WsProvider('ws://127.0.0.1:9946');
+    const wsProvider = new WsProvider('ws://127.0.0.1:9944');
 
     const api: ApiPromise = await ApiPromise.create({ provider: wsProvider });
-    // const api2: ApiPromise = await ApiPromise.create({ provider: wsProvider2 });
 
     let data = (await api.query.system.account(pair[4].address)).data;
     console.log(`Account ${pair[4].address} balance is ${data.free}`);
-
-    const promises = [];
     const time = new Date().getTime();
-    // let apiTest;
-    for (let i = 0; i < 4; i++) {
-        // if(i % 2 == 0) apiTest = api;
-        // else apiTest = api2;
-        let { nonce }: any = await api.query.system.account(pair[i].address);
-        nonce = new BN(nonce.toString());
-        for (let j = 0; j < loop; j++) {
-            promises.push(apiTransaction(pair, api, i, 4, nonce));
-            nonce = nonce.add(new BN(1));
+    const promises = [];
+    const worker = new Worker(`
+            require('tsconfig-paths/register');
+            require('ts-node/register');
+            require(require('worker_threads').workerData.runThisFileInTheWorker);`,
+    {
+        eval: true,
+        workerData: {
+            loop: loop,
+            runThisFileInTheWorker: './test/worker.ts'
         }
-    }
-    await Promise.all(promises);
+    });
+    promises.push(new Promise(r => worker.on('exit', r)));
+    await Promise.all(promises).then(() => console.log('Finished1'));
     await calculateTPS(api, time, loop, 1);
-
-    // console.log('HTTP');
-    // const time = new Date().getTime();
-    // const promises = [];
-    // for (let j = 0; j < 4; j++) {
-    //     for (let i = 0; i < loop; i++) {
-    //         promises.push(await httpTransaction(pair[j], pair[4]));
-    //     }
-    // }
-    // await Promise.all(promises);
-    // await calculateTPS(api, time, loop, 1);
     data = (await api.query.system.account(pair[4].address)).data
     console.log(`Account ${pair[4].address} balance is ${data.free}`);
 
