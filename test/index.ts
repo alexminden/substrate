@@ -18,16 +18,11 @@ async function main() {
     console.log(`Account ${pair[4].address} balance is ${data.free}`);
     const time = new Date().getTime();
     const promises = [];
-    const worker = new Worker(`
-            require('tsconfig-paths/register');
-            require('ts-node/register');
-            require(require('worker_threads').workerData.runThisFileInTheWorker);`,
-    {
-        eval: true,
+    const worker = new Worker(__dirname + '/worker.js', {
         workerData: {
+            index: 1,
             loop: loop,
-            runThisFileInTheWorker: './test/worker.ts'
-        }
+        },
     });
     promises.push(new Promise(r => worker.on('exit', r)));
     await Promise.all(promises).then(() => console.log('Finished1'));
