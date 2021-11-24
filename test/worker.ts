@@ -16,7 +16,8 @@ async function work(): Promise<void> {
     let { nonce }: any = await api.query.system.account(pair[workerData.index].address);
     nonce = new BN(nonce.toString());
     for (let j = 0; j < workerData.loop; j++) {
-        await api.tx.balances.transfer(pair[4].address, 1000).signAndSend(pair[workerData.index], { nonce });
+        await api.tx.tpsModule.transferFrom(pair[workerData.index].address, pair[4].address, 100).signAndSend(pair[workerData.index], { nonce });
+        // await api.tx.balances.transfer(pair[4].address, 1000).signAndSend(pair[workerData.index], { nonce });
         // promises.push(apiTransaction(pair, api, workerData.index, 4, nonce));
         nonce = nonce.add(new BN(1));
     }

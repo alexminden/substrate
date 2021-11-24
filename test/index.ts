@@ -1,19 +1,33 @@
 import { createTestKeyring } from '@polkadot/keyring/testing';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Worker } from 'worker_threads';
-import { getTxNumber } from './utils';
+import { getTxNumber, sleep } from './utils';
+import BN from 'bn.js';
+import b from 'bignumber.js';
 
 async function main() {
     // Loop番号を変更することで、各アカウントの取引数を増減させることができます。
     const loop = 10000;
+    let time = 0;
     const wsProvider = new WsProvider('ws://127.0.0.1:9944');
 
     const api: ApiPromise = await ApiPromise.create({ provider: wsProvider });
 
     const pair = createTestKeyring().getPairs();
-    let data = (await api.query.system.account(pair[4].address)).data;
-    console.log(`Account ${pair[4].address} balance is ${data.free}`);
+    // let data = (await api.query.system.account(pair[4].address)).data;
+    let data: any = await api.query.tpsModule.balances(pair[4].address);
+    // console.log(data);
+    // console.log(`Account ${pair[4].address} balance is ${data.free}`);
 
+    for (let account = 0; account < 4; account++) {
+        await api.tx.tpsModule.mint(pair[account].address, 1000000000).signAndSend(pair[account]);
+    }
+
+
+    await sleep(5000);
+    // for (let acc = 0; acc < 4; acc++) {
+    //     console.log('api: ', await api.query.tpsModule.balances(pair[acc].address));
+    // }
     const promises = [];
     for (let index = 0; index < 4; index++) {
         const worker = new Worker(`
@@ -47,9 +61,12 @@ async function main() {
             const afterTime = blockTimes[index + 1];
             const term = (afterTime - beforeTime) / 1000;
             const txNum = await getTxNumber(api, index + 1);
+            time += term;
             console.log(`[${afterTime - beforeTime} msec] Block ${index + 1} Mined. txNum = ${txNum}. TPS:`, txNum / term);
-            data = (await api.query.system.account(pair[4].address)).data;
-            console.log(`Account ${pair[4].address} balance is ${data.free}`);
+            // data = (await api.query.system.account(pair[4].address)).data;
+            data = await api.query.tpsModule.balances(pair[4].address);
+            console.log(`Account ${pair[4].address} balance is ${data['words']} in ${time} seconds`);
+            // console.log(`Account ${pair[4].address} balance is ${data.free}`);
             currentIndex = index + 1;
         }
     }, 5000);
@@ -58,7 +75,7 @@ async function main() {
 
 main().catch(console.error);
 
-// .then(
+// main().then(
 //     () => process.exit(),
 //     err => {
 //         console.error(err);

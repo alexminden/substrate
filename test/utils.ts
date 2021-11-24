@@ -58,3 +58,7 @@ export async function getTxNumber(api: any, blockNumber: number): Promise<number
         return extrinsic.isSigned;
     }).length;
 }
+
+export function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
