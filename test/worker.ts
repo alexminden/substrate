@@ -4,24 +4,26 @@ import { apiTransaction } from './test';
 import { workerData, parentPort } from 'worker_threads';
 import BN from 'bn.js';
 
-console.log('Beginning: ', workerData.index, workerData.loop);
+console.log('Beginning: ', workerData.index, workerData.loop, workerData.memo);
 
 async function work(): Promise<void> {
-    const keyring = createTestKeyring();
-    const pair = keyring.getPairs();
     const wsProvider = new WsProvider('ws://127.0.0.1:9944');
     const api: ApiPromise = await ApiPromise.create({ provider: wsProvider });
-
-    // const promises = [];
-    let { nonce }: any = await api.query.system.account(pair[workerData.index].address);
+    const keyring = createTestKeyring();
+    let index = workerData.index;
+    keyring.addFromUri(workerData.receiver);
+    if (workerData.index > 7) {
+        keyring.addFromUri(workerData.memo);
+        index = 9;
+    }
+    const pair = keyring.getPairs();
+    let { nonce }: any = await api.query.system.account(pair[index].address);
     nonce = new BN(nonce.toString());
     for (let j = 0; j < workerData.loop; j++) {
-        await api.tx.tpsModule.transferFrom(pair[workerData.index].address, pair[4].address, 100).signAndSend(pair[workerData.index], { nonce });
+        await api.tx.tpsModule.transferFrom(pair[index].address, pair[8].address, 1).signAndSend(pair[index], { nonce });
         // await api.tx.balances.transfer(pair[4].address, 1000).signAndSend(pair[workerData.index], { nonce });
-        // promises.push(apiTransaction(pair, api, workerData.index, 4, nonce));
         nonce = nonce.add(new BN(1));
     }
-    // await Promise.all(promises);
 }
 
 console.log('End')
