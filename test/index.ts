@@ -45,11 +45,11 @@ async function main() {
     // console.log(data);
     // console.log(`Account ${pair[4].address} balance is ${data.free}`);
 
-    for (let account = 0; account < workerNumber; account++) {
-        await api.tx.tpsModule.mint(pair[account].address, 1000000000).signAndSend(pair[account]);
-    }
+    // for (let account = 0; account < workerNumber; account++) {
+    //     await api.tx.tpsModule.mint(pair[account].address, 1000000000).signAndSend(pair[account]);
+    // }
 
-    await sleep(7000);
+    // await sleep(7000);
     // for (let acc = 0; acc < 4; acc++) {
     //     console.log('api: ', await api.query.tpsModule.balances(pair[acc].address));
     // }
@@ -65,7 +65,7 @@ async function main() {
                 workerData: {
                     loop: loop,
                     index,
-                    receiver: tab[tab.length-1],
+                    receiver: tab[tab.length - 1],
                     memo: memo,
                     runThisFileInTheWorker: './test/worker.ts'
                 }
@@ -91,9 +91,10 @@ async function main() {
             const txNum = await getTxNumber(api, index + 1);
             time += term;
             console.log(`[${afterTime - beforeTime} msec] Block ${index + 1} Mined. txNum = ${txNum}. TPS:`, txNum / term);
-            // data = (await api.query.system.account(pair[4].address)).data;
-            let data: any = await api.query.tpsModule.balances(pair[workerNumber].address);
-            console.log(`Account ${pair[workerNumber].address} balance is ${data['words']} in ${time} seconds`);
+            let data: any = (await api.query.system.account(pair[workerNumber].address)).data;
+            console.log(`Account ${pair[workerNumber].address} balance is ${data.free} in ${time} seconds`);
+            // let data: any = await api.query.tpsModule.balances(pair[workerNumber].address);
+            // console.log(`Account ${pair[workerNumber].address} balance is ${data['words']} in ${time} seconds`);
             currentIndex = index + 1;
         }
     }, 5000);
