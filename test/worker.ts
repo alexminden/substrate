@@ -14,9 +14,11 @@ async function work(): Promise<void> {
     let receiver = 7;
     if (workerData.receiver !== '') {
         keyring.addFromUri(workerData.receiver);
-        keyring.addFromUri(workerData.memo);
         receiver = 8;
-        index = 9;
+        if (workerData.index > 7) {
+            keyring.addFromUri(workerData.memo);
+            index = 9;
+        }
     }
     const pair = keyring.getPairs();
     let { nonce }: any = await api.query.system.account(pair[index].address);
