@@ -8,9 +8,9 @@ import b from 'bignumber.js';
 
 async function main() {
     // Loop番号を変更することで、各アカウントの取引数を増減させることができます。
-    const loop = 10000;
+    const loop = 20000;
     let time = 0;
-    const workerNumber: number = 50;
+    const workerNumber: number = 20;
 
     const wsProvider = new WsProvider('ws://127.0.0.1:9944');
 
@@ -18,18 +18,18 @@ async function main() {
 
     let keyring = createTestKeyring();
     let tab = [];
-
-    for (let numAccount = 0; numAccount < (workerNumber - 7); numAccount++) {
-        const newMemo = mnemonicGenerate();
-        keyring.addFromUri(newMemo);
-        tab.push(newMemo);
+    if(workerNumber > 7) {
+        for (let numAccount = 0; numAccount < (workerNumber - 7); numAccount++) {
+            const newMemo = mnemonicGenerate();
+            keyring.addFromUri(newMemo);
+            tab.push(newMemo);
+        }
     }
+    
     const pair = keyring.getPairs();
-
     let { nonce }: any = await api.query.system.account(pair[0].address);
     nonce = new BN(nonce.toString());
     for (let add = 1; add < workerNumber; add++) {
-        console.log(pair[add].address);
         await api.tx.balances.transfer(pair[add].address, 1000000000000000).signAndSend(pair[0], { nonce });
         nonce = nonce.add(new BN(1));
     }
@@ -37,8 +37,7 @@ async function main() {
     console.log('Check!');
 
     for (let i in pair) {
-        const balance = await api.query.system.account(pair[i].address);
-        console.log(`Account ${pair[i].address} balance is ${balance}`);
+        await api.query.system.account(pair[i].address);
     }
     // let data = (await api.query.system.account(pair[4].address)).data;
     // let data: any = await api.query.tpsModule.balances(pair[4].address);
@@ -54,8 +53,10 @@ async function main() {
     //     console.log('api: ', await api.query.tpsModule.balances(pair[acc].address));
     // }
     const promises = [];
+
     for (let index = 0; index < workerNumber; index++) {
         const memo = index > 7 ? tab[index - 8] : '';
+        const receiver = workerNumber > 7 ? tab[tab.length - 1]: '';
         const worker = new Worker(`
             require('tsconfig-paths/register');
             require('ts-node/register');
@@ -65,7 +66,7 @@ async function main() {
                 workerData: {
                     loop: loop,
                     index,
-                    receiver: tab[tab.length - 1],
+                    receiver: receiver,
                     memo: memo,
                     runThisFileInTheWorker: './test/worker.ts'
                 }
@@ -77,6 +78,9 @@ async function main() {
 
     let blockTimes: number[] = [];
     let currentIndex = 0;
+    let highestTPS = 0;
+    let sumTPS = 0;
+
     await api.rpc.chain.subscribeNewHeads((header) => {
         let time = (new Date()).getTime();
         console.log(`Block ${header.number} Mined. time = ${time}`);
@@ -90,7 +94,10 @@ async function main() {
             const term = (afterTime - beforeTime) / 1000;
             const txNum = await getTxNumber(api, index + 1);
             time += term;
-            console.log(`[${afterTime - beforeTime} msec] Block ${index + 1} Mined. txNum = ${txNum}. TPS:`, txNum / term);
+            const TPS = txNum / term;
+            if(TPS > highestTPS) highestTPS = TPS;
+            sumTPS += TPS;
+            console.log(`[${afterTime - beforeTime} msec] Block ${index + 1} Mined. txNum = ${txNum}. TPS: ${TPS}. Sum of TPS: ${sumTPS}. highest TPS: ${highestTPS}` );
             let data: any = (await api.query.system.account(pair[workerNumber].address)).data;
             console.log(`Account ${pair[workerNumber].address} balance is ${data.free} in ${time} seconds`);
             // let data: any = await api.query.tpsModule.balances(pair[workerNumber].address);

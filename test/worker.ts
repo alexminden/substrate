@@ -11,18 +11,20 @@ async function work(): Promise<void> {
     const api: ApiPromise = await ApiPromise.create({ provider: wsProvider });
     const keyring = createTestKeyring();
     let index = workerData.index;
-    keyring.addFromUri(workerData.receiver);
-    if (workerData.index > 7) {
+    let receiver = 7;
+    if (workerData.receiver !== '') {
+        keyring.addFromUri(workerData.receiver);
         keyring.addFromUri(workerData.memo);
+        receiver = 8;
         index = 9;
     }
     const pair = keyring.getPairs();
     let { nonce }: any = await api.query.system.account(pair[index].address);
     nonce = new BN(nonce.toString());
-    let data: any = (await api.query.system.account(pair[index].address)).data;
+    // let data: any = (await api.query.system.account(pair[index].address)).data;
     for (let j = 0; j < workerData.loop; j++) {
         // await api.tx.tpsModule.transferFrom(pair[index].address, pair[8].address, 1).signAndSend(pair[index], { nonce });
-        await api.tx.balances.transfer(pair[8].address, 1000).signAndSend(pair[index], { nonce });
+        await api.tx.balances.transfer(pair[receiver].address, 1000).signAndSend(pair[index], { nonce });
         nonce = nonce.add(new BN(1));
     }
 }
